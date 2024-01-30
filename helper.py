@@ -63,7 +63,7 @@ def create_audio(script_chunks):
         speech_file_path = Path(__file__).parent / f"clips/clip-{i}.mp3"
         response = client.audio.speech.create(
             model="tts-1",
-            voice="alloy",
+            voice="shimmer",
             input=chunk
         )
 
