@@ -2,9 +2,10 @@ import httpx
 import json
 import re
 from bs4 import BeautifulSoup
-from os import environ
+from os import environ, remove
 from openai import OpenAI
 from pathlib import Path
+from pydub import AudioSegment
 
 def parse_selene(doc_id: str) -> str:
     with httpx.Client() as http_client:
@@ -68,6 +69,29 @@ def create_audio(script_chunks):
         )
 
         response.stream_to_file(speech_file_path)
+    
+    if len(script_chunks) > 1:
+        sound = AudioSegment.empty()
+        full_file_path = Path(__file__).parent / f"clips/full-audio.mp3"
+        print(full_file_path)
+
+        for i, chunk in enumerate(script_chunks):
+            # Join audio clips
+            clip_path = Path(__file__).parent / f"clips/clip-{i}.mp3"
+            print(clip_path)
+            clip = AudioSegment.from_file(clip_path, format="mp3")
+            sound = sound + clip
+                
+        # Export the full audio file
+        sound.export(full_file_path, format="mp3")
+
+        for i, chunk in enumerate(script_chunks):
+            # Delete temporary audio clips
+            clip_path = Path(__file__).parent / f"clips/clip-{i}.mp3"
+            remove(clip_path)
+
+
+
 
     
 def split_into_sentences(text: str) -> list[str]:
