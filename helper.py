@@ -59,9 +59,11 @@ def get_cleaned_script(script_str):
 
 def create_audio(script_chunks):
     client = OpenAI(api_key=environ.get("OPENAI_SECRET"))
-
+    parent_path = Path(__file__).parent
+    if not Path(parent_path / "clips").is_dir():
+        Path(parent_path / "clips").mkdir(parents=True, exist_ok=True)
     for i, chunk in enumerate(script_chunks):
-        speech_file_path = Path(__file__).parent / f"clips/clip-{i}.mp3"
+        speech_file_path = parent_path / f"clips/clip-{i}.mp3"
         response = client.audio.speech.create(
             model="tts-1",
             voice="shimmer",
@@ -72,12 +74,12 @@ def create_audio(script_chunks):
     
     if len(script_chunks) > 1:
         sound = AudioSegment.empty()
-        full_file_path = Path(__file__).parent / f"clips/full-audio.mp3"
+        full_file_path = parent_path / f"clips/full-audio.mp3"
         print(full_file_path)
 
         for i, chunk in enumerate(script_chunks):
             # Join audio clips
-            clip_path = Path(__file__).parent / f"clips/clip-{i}.mp3"
+            clip_path = parent_path / f"clips/clip-{i}.mp3"
             print(clip_path)
             clip = AudioSegment.from_file(clip_path, format="mp3")
             sound = sound + clip
@@ -87,7 +89,7 @@ def create_audio(script_chunks):
 
         for i, chunk in enumerate(script_chunks):
             # Delete temporary audio clips
-            clip_path = Path(__file__).parent / f"clips/clip-{i}.mp3"
+            clip_path = parent_path / f"clips/clip-{i}.mp3"
             remove(clip_path)
         
         return full_file_path
