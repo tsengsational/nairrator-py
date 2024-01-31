@@ -89,10 +89,8 @@ def create_audio(script_chunks):
             # Delete temporary audio clips
             clip_path = Path(__file__).parent / f"clips/clip-{i}.mp3"
             remove(clip_path)
-
-
-
-
+        
+        return full_file_path
     
 def split_into_sentences(text: str) -> list[str]:
     alphabets= "([A-Za-z])"

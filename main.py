@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from helper import parse_selene, get_cleaned_script, create_audio
 from dotenv import load_dotenv
 
