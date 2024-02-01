@@ -94,7 +94,7 @@ def create_audio(script_chunks):
         
         return full_file_path
     
-def split_into_sentences(text: str) -> list[str]:
+def split_into_sentences(text: str):
     alphabets= "([A-Za-z])"
     prefixes = "(Mr|St|Mrs|Ms|Dr)[.]"
     suffixes = "(Inc|Ltd|Jr|Sr|Co)"
