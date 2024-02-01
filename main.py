@@ -43,14 +43,11 @@ def index():
     if form.validate_on_submit():
         # Grab the data from the docId on the form.
         docId = form.docId.data
-        docId2 = docId
-        docId = False
-        # Reset the form's docId data to be False
-        # form.docId.data = ''
-        cleaned = get_cleaned_script("this is just for testing!")
+        response = parse_selene(docId)
+        cleaned = get_cleaned_script(response)
         create_audio(cleaned)
-        result_text = "this is just for testing {}".format(docId2)
-        return render_template('result.html', result_text=result_text)
+        # result_text = "this is just for testing {}".format(docId2)
+        return render_template('result.html', result_text=cleaned)
 
     return render_template('home.html', form=form, docId=docId)
 
