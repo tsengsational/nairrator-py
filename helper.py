@@ -18,7 +18,7 @@ def parse_selene(doc_id: str) -> str:
             case "STRUCTUREDCONTENT":
                 text_list = html_data["pages"]["list"][0]["contents"]["list"]
                 # add title
-                script += text["data"]["title"]
+                script += html_data["title"]
                 # add article text
                 for text in text_list:
                     if text["type"] == "HTML":

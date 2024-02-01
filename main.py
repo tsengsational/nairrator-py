@@ -12,8 +12,14 @@ app.config['SECRET_KEY'] = 'mysecretkey'
 
 @app.route('/get-audio/<doc_id>')
 def get_audio(doc_id):
-    language = request.args.get('lang')
-    voice = request.args.get('voice')
+    if request.args.get('lang'):
+        language = request.args.get('lang')
+    else:
+        language = "english"
+    if request.args.get('voice'):
+        voice = request.args.get('voice')
+    else:
+        voice = "shimmer"
     response = parse_selene(doc_id)
     cleaned = get_cleaned_script(response, language)
     create_audio(doc_id, cleaned, voice, language)
