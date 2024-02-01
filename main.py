@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from helper import parse_selene, get_cleaned_script, create_audio
 from dotenv import load_dotenv
 
@@ -8,9 +8,11 @@ app = Flask(__name__)
 
 @app.route('/get-audio/<doc_id>')
 def get_audio(doc_id):
+    language = request.args.get('lang')
+    voice = request.args.get('voice')
     response = parse_selene(doc_id)
-    cleaned = get_cleaned_script(response)
-    create_audio(doc_id, cleaned)
+    cleaned = get_cleaned_script(response, language)
+    create_audio(doc_id, cleaned, voice, language)
 
     payload = {
         "doc_id": doc_id,

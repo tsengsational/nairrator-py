@@ -84,16 +84,26 @@ def parse_selene(doc_id: str) -> str:
 
         return cleaned
 
-def get_cleaned_script(script_str):
+def get_cleaned_script(script_str, language):
     client = OpenAI(api_key=environ.get("OPENAI_SECRET"))
+    messages = [
+                    {"role": "system", "content": "You are a copy editor"},
+                    {"role": "user", "content": "I would like you to take the following text and remove any extraneous white space. Make sure each sentence is followed by exactly one space."},
+                    {"role": "user", "content": "Text: " + script_str}
+                ]
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a copy editor"},
-            {"role": "user", "content": "I would like you to take the following text and remove any extraneous white space. Make sure each sentence is followed by exactly one space. Do not change any of the actual words or sentences in the text."},
-            {"role": "user", "content": "Text: " + script_str}
-        ]
+        messages=messages
     )
+    if language != "english":
+       response_text = response.choices[0].message.content
+       response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages = [
+                {"role": "user", "content": f"Translate the following text into {language}"},
+                {"role": "user", "content": f"Text: {response_text}"}
+           ]
+       )
 
     script_raw = response.choices[0].message.content
     script_chunks = []
@@ -114,10 +124,10 @@ def get_cleaned_script(script_str):
     
     return script_chunks
 
-def create_audio(doc_id, script_chunks):
+def create_audio(doc_id, script_chunks, voice="shimmer", language="english"):
     client = OpenAI(api_key=environ.get("OPENAI_SECRET"))
     parent_path = Path(__file__).parent
-    full_file_path = parent_path / f"clips/{doc_id}.mp3"
+    full_file_path = parent_path / f"clips/{doc_id}-{language}.mp3"
 
     if not Path(parent_path / "clips").is_dir():
         Path(parent_path / "clips").mkdir(parents=True, exist_ok=True)
@@ -125,7 +135,7 @@ def create_audio(doc_id, script_chunks):
         speech_file_path = parent_path / f"clips/clip-{i}.mp3"
         response = client.audio.speech.create(
             model="tts-1",
-            voice="shimmer",
+            voice=voice,
             input=chunk
         )
 
