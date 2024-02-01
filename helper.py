@@ -154,7 +154,7 @@ def create_audio(doc_id, script_chunks):
         sound.export(full_file_path, format="mp3")
         remove(parent_path / "clips/clip-0.mp3")
     
-def split_into_sentences(text: str) -> list[str]:
+def split_into_sentences(text: str):
     alphabets= "([A-Za-z])"
     prefixes = "(Mr|St|Mrs|Ms|Dr)[.]"
     suffixes = "(Inc|Ltd|Jr|Sr|Co)"
