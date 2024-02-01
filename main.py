@@ -10,7 +10,7 @@ app = Flask(__name__)
 def get_audio(doc_id):
     response = parse_selene(doc_id)
     cleaned = get_cleaned_script(response)
-    create_audio(cleaned)
+    create_audio(doc_id, cleaned)
 
     payload = {
         "doc_id": doc_id,
