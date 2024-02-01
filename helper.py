@@ -10,13 +10,73 @@ from pydub import AudioSegment
 def parse_selene(doc_id: str) -> str:
     with httpx.Client() as http_client:
         response = http_client.get(f"https://selene-k8s-prod.a-ue1.dotdash.com/document?docId={doc_id}")
-        response.raise_for_status()
+        # response.raise_for_status()
         html = json.loads(response.text)
-        pages = html["data"]["pages"]["list"][0]["contents"]["list"]
+        html_data = html["data"]
         script = ""
-        for page in pages:
-            if page["type"] == "HTML":
-                script += page["data"]["html"]
+        match html_data["templateType"]:
+            case "STRUCTUREDCONTENT":
+                text_list = html_data["pages"]["list"][0]["contents"]["list"]
+                # add title
+                script += text["data"]["title"]
+                # add article text
+                for text in text_list:
+                    if text["type"] == "HTML":
+                        script += text["data"]["html"]
+            case "LISTSC":
+                # add title
+                script += html_data["title"]
+                # add intro
+                intros = html_data["intro"]["list"]
+                for intro in intros:
+                    if intro["type"] == "HTML":
+                        script += intro["data"]["html"]
+                # add list
+                items = html_data["items"]["list"]
+                for item in items:
+                    contents = item["contents"]["list"]
+                    for content in contents:
+                        match content["type"]:
+                            case "HEADING":
+                                script += content["data"]["text"]
+                            case "HTML":
+                                script += content["data"]["html"]
+            case "RECIPESC":
+                #add title
+                script += html_data["title"]
+                # add intro
+                intros = html_data["intro"]["list"]
+                for intro in intros:
+                    match intro["type"]:
+                        case "HEADING":
+                            script += intro["data"]["text"]
+                        case "HTML":
+                            script += intro["data"]["html"]
+                # add ingredients
+                ingredients = html_data["ingredient"]["list"]
+                script += "Ingredients: "
+                for ingredient in ingredients:
+                    script += ingredient + " "
+                # add instructions
+                instructions = html_data["instruction"]["list"]
+                script += "Directions: "
+                for i, instruction in enumerate(instructions):
+                    match instruction["type"]:
+                        case "HTML":
+                            script += f"Step {i + 1}: " + instruction["data"]["html"]
+            case "TAXONOMYSC":
+                # add title
+                script += html_data["title"]
+                # add intro
+                intros = html_data["intro"]["list"]
+                for intro in intros:
+                    match intro["type"]:
+                        case "HEADING":
+                            script += intro["data"]["text"]
+                        case "HTML":
+                            script += intro["data"]["html"]
+
+
         
         CLEANR = re.compile('<.*?>')
         cleaned = BeautifulSoup(script, "html.parser")
@@ -38,28 +98,27 @@ def get_cleaned_script(script_str):
     script_raw = response.choices[0].message.content
     script_chunks = []
     sentences = split_into_sentences(script_raw)
-    temp_len = 0
     temp_chunk = ""
 
     for i, sentence in enumerate(sentences):
         length = len(sentence)
-        if temp_len + length < 4096:
+        if len(temp_chunk) + length < 4096:
             temp_chunk += " " + sentence
-            temp_len += len(sentence)
         else:
             script_chunks.append(temp_chunk)
             temp_chunk = ""
-            temp_len = 0
     
-    if temp_len > 0:
+    if len(temp_chunk) > 0:
         script_chunks.append(temp_chunk)
 
     
     return script_chunks
 
-def create_audio(script_chunks):
+def create_audio(doc_id, script_chunks):
     client = OpenAI(api_key=environ.get("OPENAI_SECRET"))
     parent_path = Path(__file__).parent
+    full_file_path = parent_path / f"clips/{doc_id}.mp3"
+
     if not Path(parent_path / "clips").is_dir():
         Path(parent_path / "clips").mkdir(parents=True, exist_ok=True)
     for i, chunk in enumerate(script_chunks):
@@ -74,13 +133,10 @@ def create_audio(script_chunks):
     
     if len(script_chunks) > 1:
         sound = AudioSegment.empty()
-        full_file_path = parent_path / f"clips/full-audio.mp3"
-        print(full_file_path)
 
         for i, chunk in enumerate(script_chunks):
             # Join audio clips
             clip_path = parent_path / f"clips/clip-{i}.mp3"
-            print(clip_path)
             clip = AudioSegment.from_file(clip_path, format="mp3")
             sound = sound + clip
                 
@@ -93,6 +149,10 @@ def create_audio(script_chunks):
             remove(clip_path)
         
         return full_file_path
+    else:
+        sound = AudioSegment.from_file(parent_path / "clips/clip-0.mp3")
+        sound.export(full_file_path, format="mp3")
+        remove(parent_path / "clips/clip-0.mp3")
     
 def split_into_sentences(text: str):
     alphabets= "([A-Za-z])"
