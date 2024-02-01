@@ -1,10 +1,14 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 from helper import parse_selene, get_cleaned_script, create_audio
+from flask_wtf import FlaskForm
+from wtforms import StringField,SubmitField
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = 'mysecretkey'
 
 @app.route('/get-audio/<doc_id>')
 def get_audio(doc_id):
@@ -20,6 +24,34 @@ def get_audio(doc_id):
     }
     
     return jsonify(payload), 200
+
+# @app.route('/')
+# def index():
+#     # Connecting to a template (html file)
+#     return render_template('basic.html')
+
+
+class InfoForm(FlaskForm):
+    docId = StringField('Please enter docId')
+    submit = SubmitField('Submit')
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    docId = False
+    # Create instance of the form.
+    form = InfoForm()
+    # If the form is valid on submission (we'll talk about validation next)
+    if form.validate_on_submit():
+        # Grab the data from the docId on the form.
+        docId = form.docId.data
+        response = parse_selene(docId)
+        cleaned = get_cleaned_script(response)
+        create_audio(cleaned)
+        # result_text = "this is just for testing {}".format(docId2)
+        return render_template('result.html', result_text=cleaned)
+
+    return render_template('home.html', form=form, docId=docId)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
