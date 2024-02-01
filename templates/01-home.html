@@ -1,0 +1,13 @@
+
+<h3>Welcome to NAIRRATOR!</h3>
+<form  method="POST">
+    {# This hidden_tag is a CSRF security feature. #}
+    {{ form.hidden_tag() }}
+    {{ form.doc_id.label }} {{form.doc_id}}
+    <br>
+    {{form.voice_option.label}}{{form.voice_option}}
+    <br>
+    {{form.language_option.label}}{{form.language_option}}
+    <br>
+    {{ form.submit() }}
+</form>
