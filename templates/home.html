@@ -1,7 +1,10 @@
 <div class="nairrator">
-  <div class="nairratoe__title">Audio</div>
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  </head>
+  <div class="nairrator__title">Audio</div>
   
-  <form class="nairrator__form" method="GET" action="/get-audio">
+  <form id="nairrator-form" class="nairrator__form" method="GET" action="/get-audio">
     <label for="doc_id" class="nairrator__label">Audio Doc Id</label>
     <input type="text" id="doc_id" name="doc_id">
     <label for="voice_option" class="nairrator__label">Select Voice</label>
@@ -75,5 +78,7 @@
     </select>
     <input type="submit" value="Submit">
   </form>
+
 </div>
+<script src="{{ url_for('static', filename='js/index.js')}}"></script>
 
