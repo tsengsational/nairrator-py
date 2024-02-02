@@ -1,15 +1,94 @@
-<p>
-{% if docId %}
-  The docId you entered is {{docId}}.
-  You can update it in the form below:
-{% else %}
-  Please enter your docId in the form below:
-{% endif %}
-</p>
+<div class="nairrator">
+  <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+  </head>
+  <div class="nairrator__title">Audio</div>
+  
+  <form id="nairrator-form" class="nairrator__form" method="GET" action="/get-audio">
+    <div class="nairrator__input-wrapper">
+      <label for="doc_id" class="nairrator__label">Audio Doc Id</label>
+      <input type="text" id="doc_id" name="doc_id">
+      <label for="voice_option" class="nairrator__label">Select Voice</label>
+      <select id="voice_option" name="voice">
+        <option value="alloy">Alloy</option>
+        <option value="echo">Echo</option>
+        <option value="fable">Fable</option>
+        <option value="onyx">Onyx</option>
+        <option value="nova">Nova</option>
+        <option value="shimmer" selected>Shimmer</option>
+      </select>
+      <label for="language_option" class="nairrator__label">Select Language</label>
+      <select id="language_option" name="lang">
+        <option value="afrikaans">Afrikaans</option>
+        <option value="arabic">Arabic</option>
+        <option value="armenian">Armenian</option>
+        <option value="azerbaijani">Azerbaijani</option>
+        <option value="belarusian">Belarusian</option>
+        <option value="bosnian">Bosnian</option>
+        <option value="bulgarian">Bulgarian</option>
+        <option value="catalan">Catalan</option>
+        <option value="chinese">Chinese</option>
+        <option value="croatian">Croatian</option>
+        <option value="czech">Czech</option>
+        <option value="danish">Danish</option>
+        <option value="dutch">Dutch</option>
+        <option value="english" selected>English</option>
+        <option value="estonian">Estonian</option>
+        <option value="finnish">Finnish</option>
+        <option value="french">French</option>
+        <option value="galician">Galician</option>
+        <option value="german">German</option>
+        <option value="greek">Greek</option>
+        <option value="hebrew">Hebrew</option>
+        <option value="hindi">Hindi</option>
+        <option value="hungarian">Hungarian</option>
+        <option value="icelandic">Icelandic</option>
+        <option value="indonesian">Indonesian</option>
+        <option value="italian">Italian</option>
+        <option value="japanese">Japanese</option>
+        <option value="kannada">Kannada</option>
+        <option value="kazakh">Kazakh</option>
+        <option value="korean">Korean</option>
+        <option value="latvian">Latvian</option>
+        <option value="lithuanian">Lithuanian</option>
+        <option value="macedonian">Macedonian</option>
+        <option value="malay">Malay</option>
+        <option value="marathi">Marathi</option>
+        <option value="maori">Maori</option>
+        <option value="nepali">Nepali</option>
+        <option value="norwegian">Norwegian</option>
+        <option value="persian">Persian</option>
+        <option value="polish">Polish</option>
+        <option value="portuguese">Portuguese</option>
+        <option value="romanian">Romanian</option>
+        <option value="russian">Russian</option>
+        <option value="serbian">Serbian</option>
+        <option value="slovak">Slovak</option> 
+        <option value="slovenian">Slovenian</option>
+        <option value="spanish">Spanish</option>
+        <option value="swahili">Swahili</option>
+        <option value="swedish">Swedish</option>
+        <option value="tagalog">Tagalog</option>
+        <option value="tamil">Tamil</option>
+        <option value="thai">Thai</option>
+        <option value="turkish">Turkish</option>
+        <option value="ukrainian">Ukrainian</option>
+        <option value="urdu">Urdu</option>
+        <option value="vietnamese">Vietnamese</option>
+        <option value="welsh">Welsh</option>
+      </select>
+    </div>
+    <div class="nairrator__btn-wrapper">
+      <div class="audio-track">
+        <img src="{{ url_for('static', filename='audiotrack_24px.png')}}" alt="Play">
+        <span class="loader is-hidden"></span>
+        <audio controls id="player" class="nairrator__player is-hidden"></audio>
+      </div>
+      <input class="nairrator__submit" type="submit" value="Create Narration">
+    </div>
+  </form>
 
-<form method="POST">
-    {# This hidden_tag is a CSRF security feature. #}
-    {{ form.hidden_tag() }}
-    {{ form.docId.label }} {{ form.docId(class='some-css-class') }}
-    {{ form.submit() }}
-</form>
+</div>
+
+<script src="{{ url_for('static', filename='js/index.js')}}"></script>
+

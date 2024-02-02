@@ -1,17 +1,24 @@
-from flask import Flask, jsonify, request, render_template
-from helper import parse_selene, get_cleaned_script, create_audio
+from flask import Flask, jsonify, request, render_template, Response
+from flask_cors import CORS
+from helper import parse_selene, get_cleaned_script, create_audio, append_audio
 from flask_wtf import FlaskForm
-from wtforms import StringField,SubmitField
+from wtforms import (StringField, SelectField,SubmitField)
+from wtforms.validators import DataRequired
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['SECRET_KEY'] = 'mysecretkey'
 
-@app.route('/get-audio/<doc_id>')
-def get_audio(doc_id):
+@app.route('/get-audio')
+def get_audio():
+    if request.args.get('doc_id'):
+        doc_id = request.args.get('doc_id')
+    else:
+        return jsonify({"error": "doc_id parameter is required"}), 400
     if request.args.get('lang'):
         language = request.args.get('lang')
     else:
@@ -27,37 +34,29 @@ def get_audio(doc_id):
     payload = {
         "doc_id": doc_id,
         "response": cleaned,
+        "language": language,
     }
     
     return jsonify(payload), 200
 
-# @app.route('/')
-# def index():
-#     # Connecting to a template (html file)
-#     return render_template('basic.html')
-
-
-class InfoForm(FlaskForm):
-    docId = StringField('Please enter docId')
-    submit = SubmitField('Submit')
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    docId = False
-    # Create instance of the form.
-    form = InfoForm()
-    # If the form is valid on submission (we'll talk about validation next)
-    if form.validate_on_submit():
-        # Grab the data from the docId on the form.
-        docId = form.docId.data
-        response = parse_selene(docId)
-        cleaned = get_cleaned_script(response)
-        create_audio(cleaned)
-        # result_text = "this is just for testing {}".format(docId2)
-        return render_template('result.html', result_text=cleaned)
+    return render_template('home.html')
 
-    return render_template('home.html', form=form, docId=docId)
+@app.route('/audio/<filename>')
+def stream_audio(filename):
+    dir = request.args.get('dir')
+    def generate():
+        with open(f'{dir}/{filename}', 'rb') as f:
+            data = f.read(1024)
+            while data:
+                yield data
+                data = f.read(1024)
+    return Response(generate(), mimetype='audio/mpeg')
 
-
+@app.route('/append-audio/<filename>')
+def append(filename):
+    append_audio(filename)
+    
 if __name__ == '__main__':
     app.run(debug=True)
