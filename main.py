@@ -11,8 +11,20 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'mysecretkey'
 
-
-def get_audio(doc_id, voice, language):
+@app.route('/get-audio')
+def get_audio():
+    if request.args.get('doc_id'):
+        doc_id = request.args.get('doc_id')
+    else:
+        return jsonify({"error": "doc_id parameter is required"}), 400
+    if request.args.get('lang'):
+        language = request.args.get('lang')
+    else:
+        language = "english"
+    if request.args.get('voice'):
+        voice = request.args.get('voice')
+    else:
+        voice = "shimmer"
     response = parse_selene(doc_id)
     cleaned = get_cleaned_script(response, language)
     create_audio(doc_id, cleaned, voice, language)
@@ -24,29 +36,9 @@ def get_audio(doc_id, voice, language):
     
     return jsonify(payload), 200
 
-
-class InfoForm(FlaskForm):
-    doc_id = StringField('Please enter docId:',validators=[DataRequired()])
-    voice_option = SelectField(u'Choose Your Favorite Voice:',
-                          choices=[('Alloy', 'Alloy'), ('Echo', 'Echo'),
-                                   ('Fable', 'Fable'), ('Onyx', 'Onyx'),
-                                   ('Nova', 'Shimmer')])
-    language_option = SelectField(u'Choose Your Favorite Language:',
-                          choices=[('English', 'Englis'), ('French', 'Franch'),
-                                   ('Spanish', 'Spanish'), ('Chinese', 'Chinese')])
-    submit = SubmitField('Submit')
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    form = InfoForm()
-    if form.validate_on_submit():
-        session['doc_id'] = form.doc_id.data
-        session['voice_option'] = form.voice_option.data
-        session['language_option'] = form.language_option.data
-        result_text = create_audio(session['doc_id'], session['voice_option'], session['language_option'])
-        return render_template('result.html', result_text=result_text)
-
-    return render_template('01-home.html', form=form)
+    return render_template('home.html')
 
 
 if __name__ == '__main__':
