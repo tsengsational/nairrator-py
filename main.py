@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, render_template, Response
 from flask_cors import CORS
-from helper import parse_selene, get_cleaned_script, create_audio
+from helper import parse_selene, get_cleaned_script, create_audio, append_audio
 from flask_wtf import FlaskForm
 from wtforms import (StringField, SelectField,SubmitField)
 from wtforms.validators import DataRequired
@@ -54,5 +54,9 @@ def stream_audio(filename):
                 data = f.read(1024)
     return Response(generate(), mimetype='audio/mpeg')
 
+@app.route('/append-audio/<filename>')
+def append(filename):
+    append_audio(filename)
+    
 if __name__ == '__main__':
     app.run(debug=True)

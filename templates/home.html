@@ -81,6 +81,7 @@
     <div class="nairrator__btn-wrapper">
       <div class="audio-track">
         <img src="{{ url_for('static', filename='audiotrack_24px.png')}}" alt="Play">
+        <span class="loader is-hidden"></span>
         <audio controls id="player" class="nairrator__player is-hidden"></audio>
       </div>
       <input class="nairrator__submit" type="submit" value="Create Narration">
@@ -88,8 +89,6 @@
   </form>
 
 </div>
-
-
 
 <script src="{{ url_for('static', filename='js/index.js')}}"></script>
 

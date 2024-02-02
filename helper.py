@@ -6,6 +6,7 @@ from os import environ, remove
 from openai import OpenAI
 from pathlib import Path
 from pydub import AudioSegment
+from random import randint
 
 def parse_selene(doc_id: str) -> str:
     with httpx.Client() as http_client:
@@ -200,3 +201,14 @@ def split_into_sentences(text: str):
     sentences = [s.strip() for s in sentences]
     if sentences and not sentences[-1]: sentences = sentences[:-1]
     return sentences
+
+def append_audio(filename):
+    parent_path = Path(__file__).parent
+    integer = randint(0, 9)
+    ad_path = parent_path / "ads" / f"ad-{integer}.mp3"
+    file_path = parent_path / "clips" / filename
+    sound = AudioSegment.empty()
+    ad = AudioSegment.from_file(ad_path)
+    file = AudioSegment.from_file(file_path)
+    sound = ad + file
+    sound.export(parent_path / "clips" / f"advert-{filename}", format="mp3")
