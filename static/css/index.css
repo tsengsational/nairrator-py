@@ -1,5 +1,6 @@
 html {
     --color-aqua: #0F7280;
+    --color-dark-aqua: #0b555e;
     --color-light-gray: #FAFAFA;
     --color-dark-gray: #252422;
 }
@@ -31,6 +32,34 @@ html {
 
 .nairrator__form {
     display: flex;
+}
+
+.nairrator__input-wrapper,
+.nairrator__btn-wrapper {
+    flex-grow: 1;
+}
+
+.nairrator__btn-wrapper {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.nairrator__btn-wrapper .audio-track {
+    border: white solid 4px;
+    box-sizing: content-box;
+    box-shadow: 0 0 10px 4px rgba(0,0,0,.1);
+    width: 220px;
+    height: 168px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nairrator__input-wrapper {
+    display: flex;
     flex-direction: column;
     padding-top: 12px;
 }
@@ -54,8 +83,33 @@ html {
     background-color: transparent;
 }
 
+.nairrator__form input.nairrator__submit {
+    border: none;
+    padding: 8px 24px;
+    background-color: var(--color-aqua);
+    border-radius: 6px;
+    text-transform:uppercase;
+    color: white;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+
+.nairrator__form input.nairrator__submit:hover {
+    background-color: var(--color-dark-aqua);
+    transition: all .3s;
+}
+
 .nairrator__form select {
    padding: 8px; 
    font-size: 16px;
    line-height: 24px;
+}
+
+.is-hidden {
+    display: none;
+}
+
+.nairrator__player {
+
 }

@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request, render_template, session
+from flask import Flask, jsonify, request, render_template, Response
+from flask_cors import CORS
 from helper import parse_selene, get_cleaned_script, create_audio
 from flask_wtf import FlaskForm
 from wtforms import (StringField, SelectField,SubmitField)
@@ -8,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
 
 app.config['SECRET_KEY'] = 'mysecretkey'
 
@@ -32,6 +34,7 @@ def get_audio():
     payload = {
         "doc_id": doc_id,
         "response": cleaned,
+        "language": language,
     }
     
     return jsonify(payload), 200
@@ -40,6 +43,16 @@ def get_audio():
 def index():
     return render_template('home.html')
 
+@app.route('/audio/<filename>')
+def stream_audio(filename):
+    dir = request.args.get('dir')
+    def generate():
+        with open(f'{dir}/{filename}', 'rb') as f:
+            data = f.read(1024)
+            while data:
+                yield data
+                data = f.read(1024)
+    return Response(generate(), mimetype='audio/mpeg')
 
 if __name__ == '__main__':
     app.run(debug=True)
